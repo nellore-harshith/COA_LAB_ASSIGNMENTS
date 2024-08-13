@@ -1,0 +1,29 @@
+1.Write a program in assembly language to print “Hello World”.
+
+code:-
+
+org 100h
+jmp start
+msg: db "HELLO, WORLD!", 0DH, 0Ah , 24h
+start: mov dx, msg  
+       mov ah, 09h  
+       int 21h      
+       mov ah, 0h    
+       int 16h      
+ret
+
+Practice set:
+
+2.Write an assembly language program to print your name.
+
+code:-
+
+org 100h
+jmp start
+msg: db "HARSHITH NELLORE", 0DH, 0Ah , 24h
+start: mov dx, msg 
+       mov ah, 09h  
+       int 21h      
+       mov ah, 0h    
+       int 16h      
+ret
