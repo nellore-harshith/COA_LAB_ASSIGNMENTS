@@ -1,0 +1,201 @@
+1Q. Write an assembly language program to perform multiplication of 8-bit data.
+CODE:-
+org 100h                ;set address at 100h 
+jmp start               ; Jump to the start label to begin execution
+
+msg: db "Multiplication of two 8-bit numbers is:", 0Dh, 0Ah, 24h 
+                        ; Define the message to be displayed 
+
+start:
+    mov dx, msg         ; Load the offset of the message into DX
+    mov ah, 09h         ; interrupt 21h function display a string
+    int 21h             ; interrupt to display the string
+
+    ; Define two numbers to multiply 
+num1 db 30h             ; First number 
+num2 db 29h             ; Second number 
+
+    ; Load and multiply two 8-bit numbers
+    mov al, num1        ; Move the first number into AL
+    mul num2            ; Multiply AL by the second number, result stored in AX
+    mov bx, ax          ; Store the result in BX for further use
+
+    ; Process first nibble 
+    and ax, 0F000h      ; Mask all but the first 4 bits of AX
+    shr ax, 12          ; Shift the first 4 bits to the right
+    add ax, 30h         ; Convert the value to ASCII 
+    cmp ax, 39h         ; Compare to 9 
+    jle first_bit       ; If <= 9, jump to first_bit
+    add ax, 7h          ; If > 9, adjust the value to ASCII A-F
+first_bit:
+    mov dl, al          ; Move the result into DL for output
+    mov ah, 02h         ; interrupt 21h function 02h to print character
+    int 21h             ; interrupt to display the character
+
+    ; Process second nibble 
+    mov ax, bx          ; Restore AX from BX 
+    and ax, 0F00h       ; Mask all but the second 4 bits of AX
+    shr ax, 8           ; Shift these bits to the rightmost position
+    add ax, 30h         ; Convert to ASCII (0-9)
+    cmp ax, 39h         ; Compare to 9
+    jle second_bit      ; If <= 9, jump to second_bit
+    add ax, 7h          ; Adjust to A-F if necessary
+second_bit:
+    mov dl, al          ; Move the result into DL for output
+    mov ah, 02h         ; interrupt 21h function 02h to print character
+    int 21h             ; interrupt to display the character
+
+    ; Process third nibble
+    mov ax, bx          ; Restore AX from BX again
+    and ax, 00F0h       ; Mask all but the third 4 bits of AX
+    shr ax, 4           ; Shift these bits to the rightmost position
+    add ax, 30h         ; Convert to ASCII (0-9)
+    cmp ax, 39h         ; Compare to 9
+    jle third_bit       ; If <= 9, jump to third_bit
+    add ax, 7h          ; Adjust to A-F if necessary
+third_bit:
+    mov dl, al          ; Move the result into DL for output
+    mov ah, 02h         ; interrupt 21h function 02h to print character
+    int 21h             ; interrupt to display the character
+
+    ; Process fourth nibble
+    mov ax, bx          ; Restore AX from BX once more
+    and ax, 000Fh       ; Mask all but the lowest 4 bits of AX
+    add ax, 30h         ; Convert to ASCII (0-9')
+    cmp ax, 39h         ; Compare to 9
+    jle fourth_bit      ; If <= 9, jump to fourth_bit
+    add ax, 7h          ; Adjust to A-F if necessary
+fourth_bit:
+    mov dl, al          ; Move the result into DL for output
+    mov ah, 02h         ; interrupt 21h function 02h - print character
+    int 21h             ; interrupt to display the character
+
+    ret                 ; Return from the program
+
+OUTPUT:- 07B0
+
+Practice set:
+2Q. Write a program in assembly language to perform multiplication of 16-bit data.
+CODE:-
+org 100h          ; Set address at 100h
+
+s dw 1234h        ; Define word s with value 1234h
+h dw 5678h        ; Define word h with value 5678h
+
+mov ax, s         ; Move the value of s  into AX
+mov bx, h         ; Move the value of h  into BX
+mul bx            ; Multiply AX by BX 
+
+; Process and display the higher nibble of DL 
+mov ah, dl        ; Move DL into AH
+and ah, 0F0h      ; Mask the lower nibble of AH, keeping only the upper nibble
+shr ah, 4         ; Shift right by 4 to isolate the upper nibble
+add ah, 30h       ; Convert to ASCII digit
+cmp ah, 39h       ; Compare if the digit is less than or equal to 9
+jle first         ; If yes, skip the next instruction
+add ah, 7         ; If it's greater than 9, adjust for ASCII hex letters A-F
+
+first:
+mov dl, ah        ; Move the ASCII result to DL for printing
+mov ah, 02h       ; interrupt to print the character
+int 21h           ; interrupt to print the character
+
+; Process and display the lower nibble of DL
+mov ah, dl        ; Move DL into AH
+and ah, 0Fh       ; Mask out the upper nibble, keeping only the lower nibble
+add ah, 30h       ; Convert to ASCII digit
+cmp ah, 39h       ; Compare if it's a number 0-9
+jle second        ; If yes, skip the next instruction
+add ah, 7         ; Adjust for hex letter A-F
+
+second:
+mov dl, ah        ; Move the ASCII result to DL
+mov ah, 02h       ; Set to print the character
+int 21h           ; Print character
+
+; Process and display the higher nibble of DH 
+mov ah, dh        ; Move DH into AH
+and ah, 0F0h      ; Mask out the lower nibble, keeping the upper nibble
+shr ah, 4         ; Shift right to isolate upper nibble
+add ah, 30h       ; Convert to ASCII digit
+cmp ah, 39h       ; Check if itis 0-9
+jle third         ; Skip next step if true
+add ah, 7         ; Adjust for ASCII letter A-F
+
+third:
+mov dl, ah        ; Move the ASCII result to DL for printing
+mov ah, 02h       ; Prepare for interrupt
+int 21h           ; Print character
+
+; Process and display the lower nibble of DH
+mov ah, dh        ; Move DH into AH
+and ah, 0Fh       ; Mask out upper nibble
+add ah, 30h       ; Convert to ASCII digit
+cmp ah, 39h       ; Compare to check if it's 0-9
+jle four          ; Skip next step if true
+add ah, 7         ; Adjust for hex letter A-F
+
+four:
+mov dl, ah        ; Move the ASCII result to DL for printing
+mov ah, 02h       ; Prepare to print character
+int 21h           ; Print character
+
+; Process and display the higher nibble of AL (from low word of product AX)
+mov ah, al        ; Move AL into AH
+and ah, 0F0h      ; Mask lower nibble
+shr ah, 4         ; Shift right to isolate higher nibble
+add ah, 30h       ; Convert to ASCII digit
+cmp ah, 39h       ; Compare if it’s 0-9
+jle fifth         ; Skip next if true
+add ah, 7         ; Adjust for A-F letters
+
+fifth:
+mov dl, ah        ; Move to DL for printing
+mov ah, 02h       ; Prepare to print character
+int 21h           ; Print character
+
+; Process and display the lower nibble of AL
+mov ah, al        ; Move AL into AH
+and ah, 0Fh       ; Mask upper nibble
+add ah, 30h       ; Convert to ASCII digit
+cmp ah, 39h       ; Compare if it's 0-9
+jle sixth         ; Skip next step if true
+add ah, 7         ; Adjust for hex letter
+
+sixth:
+mov dl, ah        ; Move to DL for printing
+mov ah, 02h       ; Prepare to print character
+int 21h           ; Print character
+
+; Process and display the higher nibble of AH
+mov ah, ah        ; Move AH into itself (redundant here)
+and ah, 0F0h      ; Mask lower nibble
+shr ah, 4         ; Isolate upper nibble
+add ah, 30h       ; Convert to ASCII digit
+cmp ah, 39h       ; Compare if it’s 0-9
+jle seventh       ; Skip if true
+add ah, 7         ; Adjust for A-F
+
+seventh:
+mov dl, ah        ; Move to DL for printing
+mov ah, 02h       ; Prepare to print character
+int 21h           ; Print character
+
+; Process and display the lower nibble of AH
+mov ah, ah        ; Move AH into itself again
+and ah, 0Fh       ; Mask upper nibble
+add ah, 30h       ; Convert to ASCII digit
+cmp ah, 39h       ; Compare to 0-9
+jle eighth        ; Skip if true
+add ah, 7         ; Adjust for A-F
+
+eighth:
+mov dl, ah        ; Move to DL for printing
+mov ah, 02h       ; Prepare to print character
+int 21h           ; Print character
+
+; Exit program
+mov ah, 4Ch       ; interrupt to exit
+int 21h           ; Exit the program
+
+OUTPUT:- 22063302
