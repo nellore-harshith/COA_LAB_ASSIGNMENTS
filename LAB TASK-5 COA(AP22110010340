@@ -1,0 +1,162 @@
+1. Write an assembly language program to perform division of 8-bit data.
+CODE:-
+org 100h                ; Set origin to 100h for .COM file
+
+num1 db 0Ah             ; Define byte num1 with value 0Ah (decimal 10)
+num2 db 02h             ; Define byte num2 with value 02h (decimal 2)
+
+start:
+    ; Load the dividend and divisor
+    mov al, num1        ; Move value of num1 (0Ah) into AL (AL = 0Ah)
+    mov bl, num2        ; Move value of num2 (02h) into BL (BL = 02h)
+
+    ; Prepare for division
+    xor ah, ah          ; Clear AH (AH = 0) to ensure DX:AX is properly set (AX = 0Ah)
+    
+    ; Perform division
+    div bl              ; Divide AL by BL; result in AL (quotient) and AH (remainder)
+    
+    ; Store quotient and remainder
+    mov bh, al          ; Move quotient (AL) to BH
+    mov bl, ah          ; Move remainder (AH) to BL
+
+    ; Print quotient
+    mov ah, bh          ; Move quotient (BH) to AH
+    and ah, 0F0h        ; Mask to get high nibble
+    shr ah, 4           ; Shift right to get high nibble in lower 4 bits
+    call ascii          ; Convert and print high nibble of quotient
+
+    mov ah, bh          ; Move quotient (BH) to AH
+    and ah, 0Fh         ; Mask to get low nibble
+    call ascii          ; Convert and print low nibble of quotient
+
+    call newline        ; Print a newline for separation
+
+    ; Print remainder
+    mov ah, bl          ; Move remainder (BL) to AH
+    and ah, 0F0h        ; Mask to get high nibble
+    shr ah, 4           ; Shift right to get high nibble in lower 4 bits
+    call ascii          ; Convert and print high nibble of remainder
+
+    mov ah, bl          ; Move remainder (BL) to AH
+    and ah, 0Fh         ; Mask to get low nibble
+    call ascii          ; Convert and print low nibble of remainder
+
+    ; Terminate program
+    mov ah, 4Ch         ; Function code for program termination
+    int 21h             ; Call DOS interrupt to exit program
+
+; Convert a nibble in AH to ASCII and print
+ascii:
+    add ah, 30h         ; Convert nibble to ASCII ('0'-'9' or 'A'-'F')
+    cmp ah, 39h         ; Compare with '9'
+    jle print           ; If less or equal, it's '0'-'9'
+    add ah, 7           ; If greater, adjust for 'A'-'F'
+
+print:
+    mov dl, ah          ; Move ASCII character to DL
+    mov ah, 02h         ; DOS function code for printing character
+    int 21h             ; Call DOS interrupt to print character
+    ret                 ; Return from procedure
+
+; Print newline (carriage return and line feed)
+newline:
+    mov dl, 0Dh         ; Carriage return (CR)
+    mov ah, 02h         ; DOS function code for printing character
+    int 21h             ; Call DOS interrupt to print character
+
+    mov dl, 0Ah         ; Line feed (LF)
+    mov ah, 02h         ; DOS function code for printing character
+    int 21h             ; Call DOS interrupt to print character
+    ret                 ; Return from procedure
+OUTPUT: 05
+        00
+
+Practice set:
+2. Write a program in assembly language to perform division of 16-bit data.
+CODE:-
+org 100h               ; Set origin for the program at 100h
+num1 dw 5678h          ; Define 16-bit number (num1)
+num2 dw 1234h          ; Define 16-bit number (num2)
+
+start:
+    mov ax, num1       ; Move num1 (5678h) into AX
+    mov bx, num2       ; Move num2 (1234h) into BX
+    div bx             ; Divide AX by BX (AX/BX), quotient in AX, remainder in DX
+
+    mov bx, ax         ; Store quotient from AX into BX
+    mov cx, dx         ; Store remainder from DX into CX
+
+    ; Print higher nibble of BX (high byte)
+    mov ah, bh         ; Move high byte of BX into AH
+    and ah, 0F0h       ; Mask upper nibble of AH
+    shr ah, 4          ; Shift upper nibble to lower nibble
+    call ascii         ; Convert to ASCII and print
+
+    ; Print lower nibble of BX (high byte)
+    mov ah, bh         ; Move high byte of BX into AH
+    and ah, 0Fh        ; Mask lower nibble of AH
+    call ascii         ; Convert to ASCII and print
+
+    ; Print higher nibble of BX (low byte)
+    mov ah, bl         ; Move low byte of BX into AH
+    and ah, 0F0h       ; Mask upper nibble of AH
+    shr ah, 4          ; Shift upper nibble to lower nibble
+    call ascii         ; Convert to ASCII and print
+
+    ; Print lower nibble of BX (low byte)
+    mov ah, bl         ; Move low byte of BX into AH
+    and ah, 0Fh        ; Mask lower nibble of AH
+    call ascii         ; Convert to ASCII and print
+
+    call newline       ; Print newline
+
+    ; Print higher nibble of CX (remainder)
+    mov ah, ch         ; Move high byte of CX into AH
+    and ah, 0F0h       ; Mask upper nibble of AH
+    shr ah, 4          ; Shift upper nibble to lower nibble
+    call ascii         ; Convert to ASCII and print
+
+    ; Print lower nibble of CX (remainder)
+    mov ah, ch         ; Move high byte of CX again
+    and ah, 0Fh        ; Mask lower nibble of AH
+    call ascii         ; Convert to ASCII and print
+
+    ; Print higher nibble of CL (remainder)
+    mov ah, cl         ; Move low byte of CX into AH
+    and ah, 0F0h       ; Mask upper nibble of AH
+    shr ah, 4          ; Shift upper nibble to lower nibble
+    call ascii         ; Convert to ASCII and print
+
+    ; Print lower nibble of CL (remainder)
+    mov ah, cl         ; Move low byte of CX again
+    and ah, 0Fh        ; Mask lower nibble of AH
+    call ascii         ; Convert to ASCII and print
+
+    mov ah, 4Ch        ; DOS interrupt to terminate program
+    int 21h            ; Exit program
+
+; Subroutine to convert a nibble to ASCII and print
+ascii:
+    add ah, 30h        ; Convert to ASCII (0-9)
+    cmp ah, 39h        ; Check if it's greater than '9'
+    jle print          ; If less or equal, print as digit
+    add ah, 7          ; Adjust for ASCII letters A-F
+
+print:
+    mov dl, ah         ; Move the ASCII character to DL
+    mov ah, 02h        ; DOS function to print character
+    int 21h            ; Print character
+    ret                ; Return from subroutine
+
+; Subroutine to print a newline
+newline:
+    mov dl, 0Dh        ; Carriage return
+    mov ah, 02h        ; DOS function to print character
+    int 21h            ; Print carriage return
+    mov dl, 0Ah        ; Line feed
+    mov ah, 02h        ; DOS function to print character
+    int 21h            ; Print line feed
+    ret                ; Return from subroutine
+OUTPUT:- 0004
+         0DA8
