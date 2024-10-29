@@ -1,0 +1,102 @@
+1. Write a program in assembly language to take two single-digit numbers as input and display whether they are equal or not.
+CODE:-
+
+ORG 100h
+; Display message to input first number
+MOV DX, OFFSET msg_input1
+MOV AH, 09h
+INT 21h
+; Input first number
+MOV AH, 01h       ; Function to read a character from the keyboard
+INT 21h
+SUB AL, '0'       ; Convert ASCII to digit
+MOV BL, AL        ; Store the first number in BL
+; Display message to input second number
+MOV DX, OFFSET msg_input2
+MOV AH, 09h
+INT 21h
+; Input second number
+MOV AH, 01h       ; Function to read a character from the keyboard
+INT 21h
+SUB AL, '0'       ; Convert ASCII to digit
+MOV BH, AL        ; Store the second number in BH
+
+; Compare the two numbers
+CMP BL, BH        ; Compare first and second number
+JE equal          ; Jump to equal if BL == BH
+; If numbers are not equal
+MOV DX, OFFSET msg_not_equal
+MOV AH, 09h
+INT 21h
+JMP end_program   ; Jump to end the program
+
+equal:
+; If numbers are equal
+MOV DX, OFFSET msg_equal
+MOV AH, 09h
+INT 21h
+
+end_program:
+; Terminate the program
+MOV AH, 4Ch       ; DOS interrupt to exit the program
+INT 21h
+
+msg_input1 DB "Enter first single-digit number: $"
+msg_input2 DB 0Dh, 0Ah, "Enter second single-digit number: $"
+msg_equal DB 0Dh, 0Ah, "The numbers are equal.$"
+msg_not_equal DB 0Dh, 0Ah, "The numbers are not equal.$"
+
+END
+
+OUTPUT:-
+Enter first single-digit number: 4
+Enter second single-digit number: 4
+The numbers are equal.
+
+Practice set:
+2. Write a program in assembly language to check whether a single-digit number is odd or even.
+CODE:-
+
+ORG 100h
+; Display message to input a number
+MOV DX, OFFSET msg_input1
+MOV AH, 09h
+INT 21h
+; Input of a number
+MOV AH, 01h       ; Function to read a character from the keyboard
+INT 21h
+SUB AL, '0'       ; Convert ASCII to digit
+MOV BL, AL        ; Store the number in BL
+; Check if the number is even or odd
+MOV AL, BL        ; Move the number into AL for division
+MOV CL, 02        ; Divisor is 2 to check for even/odd
+DIV CL            ; AL / 2, remainder in AH
+CMP AH, 0         ; If remainder is 0, the number is even
+JE even
+; If number is odd
+MOV DX, OFFSET msg_odd
+MOV AH, 09h
+INT 21h
+JMP end_program   ; Jump to end the program
+
+even:
+; If number is even
+MOV DX, OFFSET msg_even
+MOV AH, 09h
+INT 21h
+end_program:
+; Terminate the program
+MOV AH, 4Ch       ; DOS interrupt to exit the program
+INT 21h
+msg_input1      DB 'Enter a single-digit number: $'
+msg_even   DB 0Dh, 0Ah,'The number is even.$'
+msg_odd    DB 0Dh, 0Ah, 'The number is odd.$'
+END
+
+OUTPUT:-
+Enter a single-digit number: 8
+The number is even. 
+
+GITHUB:-
+
+
